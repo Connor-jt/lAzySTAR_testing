@@ -56,6 +56,20 @@ function run_pathfind(){
 
     // }
 
+    // display all the tile costs via color
+    for (key in tile_dict){
+        let tile = tile_dict[key];
+        tile.div.style.backgroundColor = '#FFFFFF';
+        if (tile.cost > 0){
+            tile.div.style.backgroundColor = '#C0C0C0';
+            if (tile.cost > 1){
+                tile.div.style.backgroundColor = '#808080';
+                if (tile.cost > 2){
+                    tile.div.style.backgroundColor = '#404040';
+                    if (tile.cost > 3){
+                        tile.div.style.backgroundColor = '#000000';
+    }}}}}
+
     get_tile(beg_pos).div.style.backgroundColor = 'green';
     get_tile(end_pos).div.style.backgroundColor = 'red';
 }
