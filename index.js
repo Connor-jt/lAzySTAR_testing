@@ -1,10 +1,12 @@
 
 
-const rows = 16
-const cols = 16
+const rows = 16;
+const cols = 16;
 
-const beg_pos = [     1, rows/2]
-const end_pos = [cols-2, rows/2]
+const beg_pos = [     1, rows/2];
+const end_pos = [cols-2, rows/2];
+
+const invalid_dist = 1000;
 
 tile_dict = {}
 // struct:
@@ -58,52 +60,73 @@ function tiles_dist(origin_arr, dest_arr){
     return (dest_arr[0] - origin_arr[0]) + (dest_arr[1] - origin_arr[1]);
 }
 
+function get_tile_steps(pos_arr, curr_steps){
+    // get tile from our map
+    let tile = get_tile(pos_arr);
 
-let curr_node_value = 9999;
+    // if tile doesn't exist on the map, then return infinite cost
+    if (typeof tile == 'undefined') return invalid_dist;
+
+    // otherwise sum the cost of this tile
+    let tile_step_count = curr_steps;
+    tile_step_count += 1;
+    tile_step_count += tile.cost;
+    return tile_step_count;
+}
+function create_tile_marker(pos_arr, curr_steps){
+    let c = get_tile_steps(pos_arr, curr_steps);
+    return {pos:pos_arr, value:tiles_dist(pos_arr, end_pos) + c, steps:c};
+}
+
+function process_neighbor(node){
+    // if invalid, skip
+    if (node.value >= invalid_dist) return;
+    // if more expensive than next best options, skip
+    if (node.value > curr_node_value) next_tiles.push(node);
+    // otherwise, start checking out where it leads
+    else recurse_pathfind(node.pos[0], node.pos[1], node.steps);
+}
+
+let curr_node_value = 0; // gets overwritten by root pathfind func
 let next_tiles = []
-function root_pathfind(x,y, step_count){
+function root_pathfind(x,y){
 
-    step_count += 1;
     // create all neighbor nodes
-    let pos1 = {pos:[x+1,y], dist:tiles_dist([x+1,y] + step_count, end_pos), steps:step_count  };
-    let pos2 = {pos:[x-1,y], dist:tiles_dist([x-1,y] + step_count, end_pos), steps:step_count  };
-    let pos3 = {pos:[x,y+1], dist:tiles_dist([x,y+1] + step_count, end_pos), steps:step_count  };
-    let pos4 = {pos:[x,y-1], dist:tiles_dist([x,y-1] + step_count, end_pos), steps:step_count  };
+    let pos1 = create_tile_marker([x+1,y], 0);
+    let pos2 = create_tile_marker([x-1,y], 0);
+    let pos3 = create_tile_marker([x,y+1], 0);
+    let pos4 = create_tile_marker([x,y-1], 0);
 
-    // get tile cost and add that to the step_count
     // sort
-    if (pos1.dist > pos2.dist){ let a = pos1; pos1 = pos2; pos2 = a; }
-    if (pos3.dist > pos4.dist){ let a = pos3; pos3 = pos4; pos4 = a; }
-    if (pos1.dist > pos3.dist){ let a = pos1; pos1 = pos3; pos3 = a; }
-    if (pos2.dist > pos4.dist){ let a = pos2; pos2 = pos4; pos4 = a; }
-    if (pos2.dist > pos3.dist){ let a = pos2; pos2 = pos3; pos3 = a; }
+    if (pos1.value > pos2.value){ let a=pos1; pos1 = pos2; pos2=a; }
+    if (pos3.value > pos4.value){ let a=pos3; pos3 = pos4; pos4=a; }
+    if (pos1.value > pos3.value){ let a=pos1; pos1 = pos3; pos3=a; }
+    if (pos2.value > pos4.value){ let a=pos2; pos2 = pos4; pos4=a; }
+    if (pos2.value > pos3.value){ let a=pos2; pos2 = pos3; pos3=a; }
 
     // config iteration values
-    curr_node_value = pos1.dist
+    curr_node_value = pos1.value
 
-    if (pos4.dist > curr_node_value)
-        next_tiles.push(pos4);
-    else recurse_pathfind(pos4.pos[0], pos4.pos[1]);
-    if (pos3.dist > curr_node_value)
-        next_tiles.push(pos3)
-    if (pos2.dist > curr_node_value)
-        next_tiles.push(pos2)
-    
+    // start pathfinding from all child nodes
+    process_neighbor(pos4);
+    process_neighbor(pos3);
+    process_neighbor(pos2);
+    // shortcut bit of code for pos1, since we know for a fact its our best path
+    recurse_pathfind(pos1.pos[0], pos1.pos[1], pos1.steps);
 
-    recurse_pathfind()
-
-    
-    let lowest_dist = c1_dist
-
-
-    // check direction ths one came from, so we can skip checking that connection
-}
-function recurse_pathfind(x,y,step_count, next_best){
     
 }
+function recurse_pathfind(x,y,step_count){
+    // DEBUG: mark this node that we've stepped here
+    
+
+}
+
+
 // commence pathfind
 function run_pathfind(){
     
+    next_tiles = []; // clear
     root_pathfind(beg_pos[0], beg_pos[1], 0);
 
     // display all the tile costs via color
