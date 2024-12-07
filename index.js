@@ -107,7 +107,10 @@ tile_dict = {}
 
 
 function tiles_dist(origin_arr, dest_arr){
-    return (dest_arr[0] - origin_arr[0]) + (dest_arr[1] - origin_arr[1]);
+    let x_diff = Math.abs(dest_arr[0] - origin_arr[0]);
+    let y_diff = Math.abs(dest_arr[1] - origin_arr[1]);
+    let total_diff = x_diff + y_diff;
+    return total_diff;
 }
 
 function get_tile_steps(pos_arr, curr_steps){
