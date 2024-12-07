@@ -87,6 +87,22 @@ tile_dict = {}
         // this runs for the highest value
         return "#FFFFFF";
     }
+    function invert_hexcode(tile_color){
+        let hex1 = parseInt(tile_color.substring(1, 3), 16);
+        let hex2 = parseInt(tile_color.substring(3, 5), 16);
+        let hex3 = parseInt(tile_color.substring(5, 7), 16);
+        return rgbToHex( 255-hex1, 255-hex2, 255-hex3);
+    }
+    
+    function polar_invert_hexcode(tile_color){
+        let hex1 = parseInt(tile_color.substring(1, 3), 16);
+        let hex2 = parseInt(tile_color.substring(3, 5), 16);
+        let hex3 = parseInt(tile_color.substring(5, 7), 16);
+        let result_hex = "#FFFFFF";
+        if (hex1 > 196 || hex2 > 196 || hex3 > 196)
+            result_hex = "#000000";
+        return result_hex;
+    }
 // ------------------------------------------------------------------------------
 
 
@@ -244,7 +260,10 @@ function run_pathfind(){
     for (let key in tile_dict){
         let tile = tile_dict[key];
         tile.div.innerText = tile.dbg_times_accessed;
-        tile.div.style.backgroundColor = create_heatmap_hex(tile.dbg_times_accessed, highest_access_count);
+        let tile_color = create_heatmap_hex(tile.dbg_times_accessed, highest_access_count);
+        tile.div.style.backgroundColor = tile_color;
+        // we need to invert the text color
+        tile.div.style.color = polar_invert_hexcode(tile_color);
     }
 
     // display enter/exit tiles
