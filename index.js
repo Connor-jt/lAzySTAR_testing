@@ -221,6 +221,18 @@ function root_pathfind(x,y){
     // shortcut bit of code for pos1, since we know for a fact its our best path
     recurse_pathfind(pos1.pos[0], pos1.pos[1], pos1.steps, pos1.src_dir);
 
+    for (let i = 0; i < 3; i++){
+        curr_node_value += 1; // increase node_value so we can peep through nodes for the next one up
+
+
+        for (let j = 0; j < next_tiles.length; j++){
+            let curr_tile = next_tiles[j];
+            if (curr_tile.value == curr_node_value){
+
+                recurse_pathfind(curr_tile.pos[0], curr_tile.pos[1], curr_tile.steps, curr_tile.src_dir);
+            }
+        }
+    }
     // we have to then loop through all the ones we deemed as too expensive to try
 }
 
@@ -242,13 +254,13 @@ function run_pathfind(){
         let tile = tile_dict[key];
         tile.div.style.borderColor = '#FFFFFF';
         if (tile.cost > 0){
-            tile.div.style.borderColor = '#C0C0C0';
+            tile.div.style.borderColor = '#C0C0FF';
             if (tile.cost > 1){
-                tile.div.style.borderColor = '#808080';
+                tile.div.style.borderColor = '#8080FF';
                 if (tile.cost > 2){
-                    tile.div.style.borderColor = '#404040';
+                    tile.div.style.borderColor = '#4040FF';
                     if (tile.cost > 3){
-                        tile.div.style.borderColor = '#000000';
+                        tile.div.style.borderColor = '#0000FF';
     }}}}}
 
     // get the highest access value
