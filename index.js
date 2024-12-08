@@ -47,6 +47,7 @@ let show_per_node_access = false;
 
 let hm_mode = 0;
 let hm_detail = false;
+let hm_hide_unused = false;
 //////////////////// ---------------------------------------------------------
 // UI INTERACTION //
 //////////////////// 
@@ -92,6 +93,7 @@ let hm_detail = false;
     hm_steps_checkbox.checked = true;
 
     function toggle_hm_detail(cb) { hm_detail = cb.checked; run_pathfind();}
+    function toggle_hm_hide_unused(cb) { hm_hide_unused = cb.checked; run_pathfind();}
 // ------------------------------------------------------------------------------
 
 ////////////////////// ---------------------------------------------------------
@@ -278,7 +280,7 @@ function root_pathfind(x,y){
     // shortcut bit of code for pos1, since we know for a fact its our best path
     recurse_pathfind(pos1.pos[0], pos1.pos[1], pos1.steps, pos1.src_dir);
 
-    for (let i = 0; i < 3; i++){
+    for (let i = 0; i < 8; i++){
         curr_node_value += 1; // increase node_value so we can peep through nodes for the next one up
 
 
@@ -346,6 +348,13 @@ function run_pathfind(){
     for (let key in tile_dict){
         let tile = tile_dict[key];
         let tile_color = null;
+
+        if (hm_hide_unused == true && tile.dbg_times_accessed == 0){
+            tile.div.style.backgroundColor = "#FFFFFF";
+            tile.div.style.color = "#FFFFFF";
+            continue;
+        }
+
         if      (hm_mode == 0) tile_color = create_heatmap_hex_toggled(tile.dbg_steps, highest_step_count);
         else if (hm_mode == 1) tile_color = create_heatmap_hex_toggled(tile.dbg_value, highest_value_count);
         else if (hm_mode == 2) tile_color = create_heatmap_hex_toggled(tile.dbg_times_accessed, highest_access_count);
