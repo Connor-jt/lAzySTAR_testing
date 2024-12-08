@@ -46,6 +46,7 @@ let show_per_node_value  = false;
 let show_per_node_access = false;
 
 let hm_mode = 0;
+let hm_detail = false;
 //////////////////// ---------------------------------------------------------
 // UI INTERACTION //
 //////////////////// 
@@ -74,7 +75,6 @@ let hm_mode = 0;
     }
     validate_pn_toggles(); // call this once to make sure 1 is checked when our page loads
 
-
     const hm_steps_checkbox  = document.getElementById("hm_steps");
     const hm_value_checkbox  = document.getElementById("hm_value");
     const hm_access_checkbox = document.getElementById("hm_access");
@@ -90,6 +90,8 @@ let hm_mode = 0;
         if (hm_mode == 2) hm_access_checkbox.checked = true;
     }
     hm_steps_checkbox.checked = true;
+
+    function toggle_hm_detail(cb) { hm_detail = cb.checked; run_pathfind();}
 // ------------------------------------------------------------------------------
 
 ////////////////////// ---------------------------------------------------------
@@ -110,6 +112,10 @@ let hm_mode = 0;
 ////////////////////////
     function componentToHex(c) { var h = c.toString(16); return h.length == 1 ? "0" + h : h; }
     function rgbToHex(r, g, b) { return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b); }
+    function create_heatmap_hex_toggled(value, max){
+        if (hm_detail == true) return create_heatmap_hex(value, max);
+        else                   return create_lesser_heatmap_hex(value, max);
+    }
     function create_heatmap_hex(value, max){
         const heatmax = 1792
         let heat_value = Math.trunc((value / max) * heatmax);
@@ -340,9 +346,9 @@ function run_pathfind(){
     for (let key in tile_dict){
         let tile = tile_dict[key];
         let tile_color = null;
-        if      (hm_mode == 0) tile_color = create_lesser_heatmap_hex(tile.dbg_steps, highest_step_count);
-        else if (hm_mode == 1) tile_color = create_lesser_heatmap_hex(tile.dbg_value, highest_value_count);
-        else if (hm_mode == 2) tile_color = create_lesser_heatmap_hex(tile.dbg_times_accessed, highest_access_count);
+        if      (hm_mode == 0) tile_color = create_heatmap_hex_toggled(tile.dbg_steps, highest_step_count);
+        else if (hm_mode == 1) tile_color = create_heatmap_hex_toggled(tile.dbg_value, highest_value_count);
+        else if (hm_mode == 2) tile_color = create_heatmap_hex_toggled(tile.dbg_times_accessed, highest_access_count);
 
 
         tile.div.style.backgroundColor = tile_color;
