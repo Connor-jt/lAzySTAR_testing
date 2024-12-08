@@ -40,6 +40,12 @@ tile_dict = {}
     }
 // ------------------------------------------------------------------------------
 
+
+let show_per_node_steps  = false;
+let show_per_node_value  = false;
+let show_per_node_access = false;
+
+let hm_mode = 0;
 //////////////////// ---------------------------------------------------------
 // UI INTERACTION //
 //////////////////// 
@@ -53,6 +59,37 @@ tile_dict = {}
         // then recalc
         run_pathfind();
     }
+    // all settings toggles
+    const pn_steps_checkbox  = document.getElementById("pn_steps");
+    const pn_value_checkbox  = document.getElementById("pn_value");
+    const pn_access_checkbox = document.getElementById("pn_access");
+    function toggle_pn_steps(cb) { show_per_node_steps  = cb.checked; validate_pn_toggles(); run_pathfind();}
+    function toggle_pn_value(cb) { show_per_node_value  = cb.checked; validate_pn_toggles(); run_pathfind();}
+    function toggle_pn_access(cb){ show_per_node_access = cb.checked; validate_pn_toggles(); run_pathfind();}
+    function validate_pn_toggles(){
+        if (show_per_node_steps == false && show_per_node_value == false && show_per_node_access == false){
+            show_per_node_steps = true;
+            pn_steps_checkbox.checked = true;
+        }
+    }
+    validate_pn_toggles(); // call this once to make sure 1 is checked when our page loads
+
+
+    const hm_steps_checkbox  = document.getElementById("hm_steps");
+    const hm_value_checkbox  = document.getElementById("hm_value");
+    const hm_access_checkbox = document.getElementById("hm_access");
+    function toggle_hm_steps() { hm_mode = 0; clear_hm_toggles(); run_pathfind();}
+    function toggle_hm_value() { hm_mode = 1; clear_hm_toggles(); run_pathfind();}
+    function toggle_hm_access(){ hm_mode = 2; clear_hm_toggles(); run_pathfind();}
+    function clear_hm_toggles(){
+        hm_steps_checkbox.checked = false;
+        hm_value_checkbox.checked = false;
+        hm_access_checkbox.checked = false;
+        if (hm_mode == 0) hm_steps_checkbox.checked  = true;
+        if (hm_mode == 1) hm_value_checkbox.checked  = true;
+        if (hm_mode == 2) hm_access_checkbox.checked = true;
+    }
+    hm_steps_checkbox.checked = true;
 // ------------------------------------------------------------------------------
 
 ////////////////////// ---------------------------------------------------------
@@ -164,6 +201,7 @@ function recurse_pathfind(x,y,step_count, src_direction){ // this takes everythi
     if (x === end_pos[0] && y === end_pos[1]){
         // TODO: route found
         let route = "found";
+        throw "success";
     }
     // DEBUG: mark this node that we've stepped here
         let test = get_tile2(x,y);
@@ -261,8 +299,14 @@ function run_pathfind(){
         tile.dbg_steps = 0;
         tile.dbg_value = 0;
     }
-
-    root_pathfind(beg_pos[0], beg_pos[1], 0);
+    try {
+        root_pathfind(beg_pos[0], beg_pos[1], 0);
+    } catch (exception){
+        if (exception === "success"){
+            let success = "super epic";
+        }
+    }
+    
 
     // display all the tile costs via border color
     for (key in tile_dict){
@@ -278,10 +322,16 @@ function run_pathfind(){
                         tile.div.style.borderColor = '#FF00FF';
     }}}}}
 
-    // get the highest access value
+    // get the highest step/value/access values
+    let highest_step_count = 0;
+    let highest_value_count = 0;
     let highest_access_count = 1;
     for (let key in tile_dict){
         let tile = tile_dict[key];
+        if (tile.dbg_steps > highest_step_count)
+            highest_step_count = tile.dbg_steps;
+        if (tile.dbg_value > highest_value_count)
+            highest_value_count = tile.dbg_value;
         if (tile.dbg_times_accessed > highest_access_count)
             highest_access_count = tile.dbg_times_accessed;
     }
@@ -289,12 +339,34 @@ function run_pathfind(){
     // update tile visuals
     for (let key in tile_dict){
         let tile = tile_dict[key];
-        tile.div.innerText = "" + tile.dbg_steps + ", " + tile.dbg_value;
+        let tile_color = null;
+        if      (hm_mode == 0) tile_color = create_lesser_heatmap_hex(tile.dbg_steps, highest_step_count);
+        else if (hm_mode == 1) tile_color = create_lesser_heatmap_hex(tile.dbg_value, highest_value_count);
+        else if (hm_mode == 2) tile_color = create_lesser_heatmap_hex(tile.dbg_times_accessed, highest_access_count);
 
-        let tile_color = create_lesser_heatmap_hex(tile.dbg_times_accessed, highest_access_count);
+
         tile.div.style.backgroundColor = tile_color;
         // we need to invert the text color
         tile.div.style.color = polar_invert_hexcode(tile_color);
+    }
+
+    // update tile text
+    for (let key in tile_dict){
+        let tile = tile_dict[key];
+
+        let tile_text = "";
+        if (show_per_node_steps == true)
+            tile_text += tile.dbg_steps
+        if (show_per_node_value == true){
+            if (tile_text.length != 0) tile_text += ", ";
+            tile_text += tile.dbg_value;
+        }
+        if (show_per_node_access == true){
+            if (tile_text.length != 0) tile_text += ", ";
+            tile_text += tile.dbg_times_accessed;
+        }
+        
+        tile.div.innerText = tile_text;
     }
 
     // display enter/exit tiles

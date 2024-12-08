@@ -7,6 +7,29 @@
     <body>
         <div id="container">
         </div>
+
+        <input type="checkbox" id="pn_steps"  onclick="toggle_pn_steps(this);">
+        <span> Show per-node steps</span>
+        <br/>
+        <input type="checkbox" id="pn_value"  onclick="toggle_pn_value(this);">
+        <span> Show per-node value</span>
+        <br/>
+        <input type="checkbox" id="pn_access" onclick="toggle_pn_access(this);">
+        <span> Show per-node access count</span>
+        <br/>
+
+        <br/>
+
+        <input type="checkbox" id="hm_steps"  onclick="toggle_hm_steps();">
+        <span> Show Heatmap of steps</span>
+        <br/>
+        <input type="checkbox" id="hm_value"  onclick="toggle_hm_value();">
+        <span> Show Heatmap of value</span>
+        <br/>
+        <input type="checkbox" id="hm_access" onclick="toggle_hm_access();">
+        <span> Show Heatmap of access count</span>
+        <br/>
+
     </body>
 </html>
 
