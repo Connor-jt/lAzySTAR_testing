@@ -12,9 +12,9 @@ tile_dict = {}
 // {
 //      div: null
 //      cost: 0
-//      dbg_dist: 0
+//      dbg_steps: 0
+//      dbg_value: 0
 //      dbg_times_accessed: 0
-//      dbg_deviance: 0
 // }
 
 /////////////////// ---------------------------------------------------------
@@ -33,7 +33,8 @@ tile_dict = {}
                 cell.onclick = click_node;
 
                 container.appendChild(cell).className = "grid-item";
-                tile_dict[id] = {div: cell, cost: 0, dbg_times_accessed: 0};
+                tile_dict[id] = {div: cell, cost: 0, 
+                                 dbg_times_accessed: 0, dbg_steps: 0, dbg_value: 0};
             }
         }
     }
@@ -93,7 +94,6 @@ tile_dict = {}
         let hex3 = parseInt(tile_color.substring(5, 7), 16);
         return rgbToHex( 255-hex1, 255-hex2, 255-hex3);
     }
-    
     function polar_invert_hexcode(tile_color){
         let hex1 = parseInt(tile_color.substring(1, 3), 16);
         let hex2 = parseInt(tile_color.substring(3, 5), 16);
@@ -158,6 +158,8 @@ function recurse_pathfind(x,y,step_count, src_direction){ // this takes everythi
         let test = get_tile2(x,y);
         if (test != null){
             test.dbg_times_accessed += 1;
+            test.dbg_steps = step_count;
+            test.dbg_value = tiles_dist([x,y], end_pos) + step_count;
         }
 
     // create the 3 neighbor nodes, skipping the node that we came from
@@ -245,6 +247,8 @@ function run_pathfind(){
     for (let key in tile_dict){
         let tile = tile_dict[key];
         tile.dbg_times_accessed = 0;
+        tile.dbg_steps = 0;
+        tile.dbg_value = 0;
     }
 
     root_pathfind(beg_pos[0], beg_pos[1], 0);
@@ -274,7 +278,8 @@ function run_pathfind(){
     // update tile visuals
     for (let key in tile_dict){
         let tile = tile_dict[key];
-        tile.div.innerText = tile.dbg_times_accessed;
+        tile.div.innerText = "" + tile.dbg_steps + ", " + tile.dbg_value;
+
         let tile_color = create_heatmap_hex(tile.dbg_times_accessed, highest_access_count);
         tile.div.style.backgroundColor = tile_color;
         // we need to invert the text color
