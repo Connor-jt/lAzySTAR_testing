@@ -87,6 +87,17 @@ tile_dict = {}
         if (heat_value < 1792) return rgbToHex(255, heat_step_value, 255);       // white
         // this runs for the highest value
         return "#FFFFFF";
+    }function create_lesser_heatmap_hex(value, max){
+        const heatmax = 1024
+        let heat_value = Math.trunc((value / max) * heatmax);
+        let heat_step_value = Math.trunc(heat_value % 256);
+        let inverse_heat_step_value = Math.trunc(255 - heat_step_value);
+        if (heat_value <  256) return rgbToHex(0, heat_step_value, 255);         // greenish
+        if (heat_value <  512) return rgbToHex(0, 255, inverse_heat_step_value); // green
+        if (heat_value <  768) return rgbToHex(heat_step_value, 255, 0);         // yellow
+        if (heat_value < 1024) return rgbToHex(255, inverse_heat_step_value, 0); // red
+        // this runs for the highest value
+        return "#FF0000";
     }
     function invert_hexcode(tile_color){
         let hex1 = parseInt(tile_color.substring(1, 3), 16);
@@ -99,7 +110,7 @@ tile_dict = {}
         let hex2 = parseInt(tile_color.substring(3, 5), 16);
         let hex3 = parseInt(tile_color.substring(5, 7), 16);
         let result_hex = "#FFFFFF";
-        if (hex1 > 196 || hex2 > 196 || hex3 > 196)
+        if (hex1 > 172 || hex2 > 172)
             result_hex = "#000000";
         return result_hex;
     }
@@ -258,13 +269,13 @@ function run_pathfind(){
         let tile = tile_dict[key];
         tile.div.style.borderColor = '#FFFFFF';
         if (tile.cost > 0){
-            tile.div.style.borderColor = '#C0C0FF';
+            tile.div.style.borderColor = '#FFC0FF';
             if (tile.cost > 1){
-                tile.div.style.borderColor = '#8080FF';
+                tile.div.style.borderColor = '#FF80FF';
                 if (tile.cost > 2){
-                    tile.div.style.borderColor = '#4040FF';
+                    tile.div.style.borderColor = '#FF40FF';
                     if (tile.cost > 3){
-                        tile.div.style.borderColor = '#0000FF';
+                        tile.div.style.borderColor = '#FF00FF';
     }}}}}
 
     // get the highest access value
@@ -280,7 +291,7 @@ function run_pathfind(){
         let tile = tile_dict[key];
         tile.div.innerText = "" + tile.dbg_steps + ", " + tile.dbg_value;
 
-        let tile_color = create_heatmap_hex(tile.dbg_times_accessed, highest_access_count);
+        let tile_color = create_lesser_heatmap_hex(tile.dbg_times_accessed, highest_access_count);
         tile.div.style.backgroundColor = tile_color;
         // we need to invert the text color
         tile.div.style.color = polar_invert_hexcode(tile_color);
