@@ -297,7 +297,7 @@ function root_pathfind(x,y){
     // shortcut bit of code for pos1, since we know for a fact its our best path
     recurse_pathfind(pos1.pos[0], pos1.pos[1], pos1.steps, pos1.src_dir);
 
-    for (let i = 0; i < 8; i++){
+    for (let i = 0; i < 20; i++){
         curr_node_value += 1; // increase node_value so we can peep through nodes for the next one up
 
 
