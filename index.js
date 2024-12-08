@@ -170,6 +170,13 @@ function tiles_dist(origin_arr, dest_arr){
 }
 
 function get_tile_steps(pos_arr, curr_steps){
+    // make sure we aren't re-creating a tile that is already marked down
+    let str_id = "" + pos_arr[0] + "," + pos_arr[1];
+    let test = mapped_tiles[str_id];
+    if (test != null) 
+        return invalid_dist;
+
+
     // get tile from our map
     let tile = get_tile(pos_arr);
 
@@ -186,8 +193,17 @@ function get_tile_steps(pos_arr, curr_steps){
 
 
 function create_tile_marker(pos_arr, curr_steps, dir){
+
+
     let c = get_tile_steps(pos_arr, curr_steps);
-    return {pos:pos_arr, value:tiles_dist(pos_arr, end_pos) + c, steps:c, src_dir:dir};
+    let result_obj = {pos:pos_arr, value:tiles_dist(pos_arr, end_pos) + c, steps:c, src_dir:dir};
+    
+    // write this node down to the list thing if its valid
+    if (c < invalid_dist) {
+        let str_id = "" + pos_arr[0] + "," + pos_arr[1];
+        mapped_tiles[str_id] = result_obj;
+    }
+    return result_obj;
 }
 
 function process_neighbor(node){
@@ -202,7 +218,8 @@ function process_neighbor(node){
 
 
 let curr_node_value = 0; // gets overwritten by root pathfind func
-let next_tiles = []
+let next_tiles = [];
+let mapped_tiles = {};
 
 function recurse_pathfind(x,y,step_count, src_direction){ // this takes everything except the tile value?
     // check if this is the destination??
@@ -300,6 +317,7 @@ function root_pathfind(x,y){
 function run_pathfind(){
     
     next_tiles = []; // clear all queued tile checks
+    mapped_tiles = {};
     // reset per tile data
     for (let key in tile_dict){
         let tile = tile_dict[key];
