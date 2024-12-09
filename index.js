@@ -339,18 +339,19 @@ function run_pathfind(){
         let tile = tile_dict[key];
         tile.div.style.borderColor = '#FFFFFF';
         if (tile.cost > 0){
-            tile.div.style.borderColor = '#FFC0FF';
+            tile.div.style.borderColor = '#C0C0C0';
             if (tile.cost > 1){
-                tile.div.style.borderColor = '#FF80FF';
+                tile.div.style.borderColor = '#808080';
                 if (tile.cost > 2){
-                    tile.div.style.borderColor = '#FF40FF';
+                    tile.div.style.borderColor = '#404040';
                     if (tile.cost > 3){
-                        tile.div.style.borderColor = '#FF00FF';
+                        tile.div.style.borderColor = '#000000';
     }}}}}
 
     // get the highest step/value/access values
     let highest_step_count = 0;
     let highest_value_count = 0;
+    let lowest_value_count = 99999;
     let highest_access_count = 1;
     for (let key in tile_dict){
         let tile = tile_dict[key];
@@ -358,9 +359,13 @@ function run_pathfind(){
             highest_step_count = tile.dbg_steps;
         if (tile.dbg_value > highest_value_count)
             highest_value_count = tile.dbg_value;
+        if (tile.dbg_value > 0 && tile.dbg_value < lowest_value_count)
+            lowest_value_count = tile.dbg_value;
         if (tile.dbg_times_accessed > highest_access_count)
             highest_access_count = tile.dbg_times_accessed;
     }
+    lowest_value_count -= 1;
+
 
     // update tile visuals
     for (let key in tile_dict){
@@ -374,8 +379,16 @@ function run_pathfind(){
         }
 
         if      (hm_mode == 0) tile_color = create_heatmap_hex_toggled(tile.dbg_steps, highest_step_count);
-        else if (hm_mode == 1) tile_color = create_heatmap_hex_toggled(tile.dbg_value, highest_value_count);
         else if (hm_mode == 2) tile_color = create_heatmap_hex_toggled(tile.dbg_times_accessed, highest_access_count);
+        else if (hm_mode == 1){
+
+            if (tile.dbg_value <= lowest_value_count)
+                tile_color = create_heatmap_hex_toggled(0, highest_value_count - lowest_value_count);
+            else
+                tile_color = create_heatmap_hex_toggled(tile.dbg_value - lowest_value_count, highest_value_count - lowest_value_count);
+
+        }
+            
 
 
         tile.div.style.backgroundColor = tile_color;
